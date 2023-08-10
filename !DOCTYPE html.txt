@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Game</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  #character {
+    width: 30px;
+    height: 30px;
+    background-color: blue;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .obstacle {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    position: absolute;
+  }
+  .fire {
+    width: 5px;
+    height: 10px;
+    background-color: orange;
+    position: absolute;
+  }
+</style>
+</head>
+<body>
+<div id="character"></div>
+</body>
+<script>
+  const character = document.getElementById('character');
+  let characterX = window.innerWidth / 2;
+  let characterY = window.innerHeight / 2;
+  const fireSpeed = 5; // Speed of fired projectiles
+  let fires = [];
+
+  const obstacleInterval = 1500; // Time interval between obstacle spawns (milliseconds)
+  let obstacles = [];
+
+  function updateCharacterPosition() {
+    character.style.left = characterX + 'px';
+    character.style.top = characterY + 'px';
+  }
+
+  function spawnObstacle() {
+    const obstacle = document.createElement('div');
+    obstacle.className = 'obstacle';
+    obstacle.style.left = Math.random() * window.innerWidth + 'px';
+    obstacle.style.top = Math.random() * window.innerHeight + 'px';
+    document.body.appendChild(obstacle);
+    obstacles.push(obstacle);
+  }
+
+  function moveObstacles() {
+    obstacles.forEach((obstacle) => {
+      const obstacleY = parseFloat(obstacle.style.top);
+      obstacle.style.top = (obstacleY + 2) + 'px';
+      if (obstacleY > window.innerHeight) {
+        obstacle.remove();
+        obstacles = obstacles.filter((o) => o !== obstacle);
+      }
+    });
+  }
+
+  function shoot() {
+    const fire = document.createElement('div');
+    fire.className = 'fire';
+    fire.style.left = characterX + 'px';
+    fire.style.top = (characterY - 10) + 'px';
+    document.body.appendChild(fire);
+    fires.push(fire);
+  }
+
+  function moveFires() {
+    fires.forEach((fire) => {
+      const fireY = parseFloat(fire.style.top);
+      fire.style.top = (fireY - fireSpeed) + 'px';
+      if (fireY < 0) {
+        fire.remove();
+        fires = fires.filter((f) => f !== fire);
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'ArrowLeft':
+        characterX -= 10;
+        break;
+      case 'ArrowRight':
+        characterX += 10;
+        break;
+      case 'ArrowUp':
+        characterY -= 10;
+        break;
+      case 'ArrowDown':
+        characterY += 10;
+        break;
+      case ' ':
+        shoot();
+        break;
+    }
+    updateCharacterPosition();
+  });
+
+  setInterval(spawnObstacle, obstacleInterval);
+  setInterval(moveObstacles, 16); // Update obstacle positions every 16ms (approx. 60 FPS)
+  setInterval(moveFires, 16); // Update fire positions every 16ms (approx. 60 FPS)
+</script>
+</html>
